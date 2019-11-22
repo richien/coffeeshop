@@ -3,10 +3,13 @@ from flask import Flask, request, jsonify, abort
 from sqlalchemy import exc
 import json
 from flask_cors import CORS
+from dotenv import load_dotenv
 
 from .database.models import db_drop_and_create_all, setup_db, Drink
 from .auth.auth import AuthError, requires_auth
+from .views import drinks
 
+load_dotenv()
 app = Flask(__name__)
 setup_db(app)
 CORS(app)
@@ -18,15 +21,8 @@ CORS(app)
 '''
 # db_drop_and_create_all()
 
-## ROUTES
-'''
-@TODO implement endpoint
-    GET /drinks
-        it should be a public endpoint
-        it should contain only the drink.short() data representation
-    returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
-        or appropriate status code indicating reason for failure
-'''
+# ROUTES
+app.register_blueprint(drinks)
 
 
 '''
@@ -75,17 +71,90 @@ CORS(app)
 '''
 
 
-## Error Handling
+# Error Handling
 '''
-Example error handling for unprocessable entity
+Error handling for bad request
+'''
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({
+                    'success': False,
+                    'error': 400,
+                    'message': 'bad request'
+                    }), 400
+
+
+'''
+Error handling for unauthorized request
+'''
+@app.errorhandler(401)
+def unauthorized(error):
+    return jsonify({
+                    'success': False,
+                    'error': 401,
+                    'message': 'unauthorized'
+                    }), 401
+
+
+'''
+Error handling for action forbidden
+'''
+@app.errorhandler(403)
+def forbidden(error):
+    return jsonify({
+                    'success': False,
+                    'error': 403,
+                    'message': 'forbidden'
+                    }), 403
+
+
+'''
+Error handling for resource not found
+'''
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+                    'success': False,
+                    'error': 404,
+                    'message': 'resource not found'
+                    }), 404
+
+
+'''
+Error handling for method not allowed
+'''
+@app.errorhandler(405)
+def not_allowed(error):
+    return jsonify({
+                    'success': False,
+                    'error': 405,
+                    'message': 'method not allowed'
+                    }), 405
+
+
+'''
+Error handling for unprocessable entity
 '''
 @app.errorhandler(422)
 def unprocessable(error):
     return jsonify({
-                    "success": False, 
-                    "error": 422,
-                    "message": "unprocessable"
+                    'success': False,
+                    'error': 422,
+                    'message': 'unprocessable'
                     }), 422
+
+
+'''
+Error handling for internal server error
+'''
+@app.errorhandler(500)
+def server_error(error):
+    return jsonify({
+                    'success': False,
+                    'error': 500,
+                    'message': 'internal server error'
+                    }), 500
+
 
 '''
 @TODO implement error handlers using the @app.errorhandler(error) decorator
