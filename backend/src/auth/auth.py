@@ -141,18 +141,17 @@ Return true if correct permissions are found.
 '''
 
 
-def check_permissions(permissions, payload):
+def check_permissions(permission, payload):
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims',
             'description': 'Permissions not included in JWT'
         }, 400)
-    for permission in permissions:
-        if permission not in payload['permissions']:
-            raise AuthError({
-                'code': 'forbidden',
-                'description': 'Permission not found'
-            }, 403)
+    if permission not in payload['permissions']:
+        raise AuthError({
+            'code': 'forbidden',
+            'description': 'Permission not found'
+        }, 403)
     return True
 
 
@@ -162,13 +161,13 @@ whether the user is permitted to access the requested resource.
 '''
 
 
-def requires_auth(permissions=[]):
+def requires_auth(permission=''):
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
             payload = verify_decode_jwt(token)
-            check_permissions(permissions, payload)
+            check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
         return wrapper
     return requires_auth_decorator
