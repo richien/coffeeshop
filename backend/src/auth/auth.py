@@ -10,28 +10,23 @@ AUTH0_DOMAIN = os.getenv('AUTH0_DOMAIN')
 ALGORITHMS = os.getenv('ALGORITHMS')
 API_AUDIENCE = os.getenv('API_AUDIENCE')
 
-# AuthError Exception
-'''
-AuthError Exception.
-A standardized way to communicate auth failure modes.
-'''
-
 
 class AuthError(Exception):
+    '''AuthError Exception.
+
+    A standardized way to communicate authentication failure modes.
+    '''
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
 
 
-# Auth Header
-'''
-Checks that the correct authorization header is sent
-with the request i.e 'Bearer token'.
-Returns the token part of the header.
-'''
-
-
 def get_token_auth_header():
+    '''Checks for the correct authorization header
+
+    Returns:
+        str: The token string.
+    '''
     headers = request.headers.get('Authorization', None)
     if not headers:
         raise AuthError({
@@ -58,13 +53,14 @@ def get_token_auth_header():
     return token
 
 
-'''
-Checks jwks for an rsa key using a key ID in the token header.
-Returns the rsa key.
-'''
-
-
 def get_rsa_key(token):
+    '''Checks jwks for an rsa key using a key ID in the token header.
+
+    Args:
+        token (str):  The token string
+    Returns:
+        dict: The rsa key.
+    '''
     JWKS_URL = os.getenv('JWKS_URL')
     try:
         jsonurl = urlopen(JWKS_URL)
@@ -99,13 +95,14 @@ def get_rsa_key(token):
             }, 401)
 
 
-'''
-Verifies and decodes the JWT token.
-Returns the payload.
-'''
-
-
 def verify_decode_jwt(token):
+    '''Verifies and decodes the JWT token.
+
+    Args:
+        token (str):  The token string
+    Returns:
+        dict: The token payload.
+    '''
     rsa_key = get_rsa_key(token)
     try:
         payload = jwt.decode(
@@ -134,14 +131,15 @@ def verify_decode_jwt(token):
         }, 400)
 
 
-'''
-Checks whether the token payload contains the permissions
-neccessary to access a route.
-Return true if correct permissions are found.
-'''
-
-
 def check_permissions(permission, payload):
+    '''Checks whether the token payload contains the required permissions.
+
+    Args:
+        permission (str):  The permission string
+        payload (dict): The JWT payload
+    Returns:
+        bool: True if successfull.
+    '''
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims',
@@ -155,13 +153,17 @@ def check_permissions(permission, payload):
     return True
 
 
-'''
-Checks whether a request is from an authenticated user and
-whether the user is permitted to access the requested resource.
-'''
-
-
 def requires_auth(permission=''):
+    '''Implements authentication and authorization.
+
+    Checks whether a request is from an authenticated user and
+    whether the user is permitted to access the requested resource.
+
+    Args:
+        permission (str):  The permission string
+    Returns:
+        func: The decorator function.
+    '''
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
