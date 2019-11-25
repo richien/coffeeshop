@@ -1,6 +1,4 @@
-from flask import Flask, request, jsonify, abort
-from sqlalchemy import exc
-import json
+from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
