@@ -30,15 +30,17 @@ This will install all of the required packages we selected within the `requireme
 
 - [jose](https://python-jose.readthedocs.io/en/latest/) JavaScript Object Signing and Encryption for JWTs. Useful for encoding, decoding, and verifying JWTS.
 
+## Setup environment variables
+
+Create a `.env` file with the root of the `./src` directory and copy the contents of the `.env.example` file in to this file.
+
+Setup add the environment variables as described in the `.env.example` file.
+
 ## Running the server
 
 From within the `./src` directory first ensure you are working using your created virtual environment.
 
 Each time you open a new terminal session, run:
-
-```bash
-export FLASK_APP=api.py;
-```
 
 To run the server, execute:
 
