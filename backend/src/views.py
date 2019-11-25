@@ -99,3 +99,22 @@ def edit_drink_details(id):
         }), 200
     except exc.SQLAlchemyError:
         abort(422)
+
+
+'''
+Deletes a drink.
+'''
+@drinks.route('/drinks/<id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drink(id):
+    try:
+        drink = Drink.query.filter(Drink.id == id).one_or_none()
+        if not drink:
+            abort(404)
+        drink.delete()
+        return jsonify({
+            'success': True,
+            'delete': id
+        }), 200
+    except exc.SQLAlchemyError:
+        abort(503)
